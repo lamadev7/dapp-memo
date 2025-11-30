@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Miriam+Libre&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+* {
+  font-family: 'Hind Siliguri', sans-serif;
+  font-family: 'Miriam Libre', sans-serif;
+}
+
+.overrideInputStyle {
+  font-size: 15px !important;
+}
+
+
+#count {
+  font-family: 'Anek Devanagari', sans-serif;
+  font-family: 'Space Mono', monospace;
+}
+
+.countdown_timer div, .countdown_timer h5 {
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+
+span, p {
+  color: rgb(71 85 105);
+}
+
+.sub__navbar div {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.user__card .col2 div {
+  margin-bottom: 5px;
+}
+
+
+.profile__dropdown__items span {
+  padding: 5px 10px 5px 10px;
+  border-bottom: 1px solid rgb(238, 238, 238);
+  cursor: pointer;
+}
+
+.profile__dropdown__items span:hover {
+  opacity: 0.6;
+  background-color: white;
+}
+
+/* 
+.sub__navbar div:hover {
+  opacity: 0.8;
+} */
+
+/* animated border styling */
+:root {
+  --angle: 45deg;
+  --opacity: 0.5;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.animatedBorder {
+  --border-size: 0.099rem;
+  border: var(--border-size) solid transparent;
+
+  /* Paint an image in the border */
+  border-image: conic-gradient(from var(--angle),
+      #d53e33 0deg 90deg,
+      #fbb300 90deg 180deg,
+      #377af5 180deg 270deg,
+      #399953 270deg 360deg) 1 stretch;
+  background: rgb(255 255 255 / var(--opacity));
+}
+
+/* Animate when Houdini is available */
+@supports (background: paint(houdini)) {
+  @property --opacity {
+    syntax: "<number>";
+    initial-value: 0.5;
+    inherits: false;
+  }
+
+  @property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes opacityChange {
+    to {
+      --opacity: 1;
+    }
+  }
+
+  @keyframes rotate {
+    to {
+      --angle: 360deg;
+    }
+  }
+}
+
+.animatedBorder {
+  animation: rotate 4s linear infinite, opacityChange 3s infinite alternate;
+}
+
+.vertical__navbar div div{
+  cursor: pointer;
+}
+
+.card__box__shadow{
+  box-shadow: 0px -1px 14px 0px rgba(120,120,120,0.75);
+  -webkit-box-shadow: 0px -1px 14px 0px rgba(120,120,120,0.75);
+  -moz-box-shadow: 0px -1px 14px 0px rgba(120,120,120,0.75);
+}

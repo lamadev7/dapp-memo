@@ -1,0 +1,17 @@
+{
+  "name": "blockchain-voting-system",
+  "version": "1.0.0",
+  "description": "Decentralized Voting System",
+  "main": "truffle-config.js",
+  "scripts": {
+    "migrate": "truffle migrate --reset",
+    "compile": "truffle compile",
+    "test": "truffle test"
+  },
+  "devDependencies": {
+    "truffle": "^5.11.5"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3"
+  }
+}

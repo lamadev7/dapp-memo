@@ -1,0 +1,114 @@
+import { CandidateSmartContract, VoterSmartContract, PartySmartContract, ElectionSmartContract, AuthSmartContract } from "../constants";
+import Web3 from "web3";
+
+const web3: any = new Web3(Web3.givenProvider);
+declare const window: any;
+
+export const disconnectWallet = async () => {
+  await web3?.ethereum.disconnect();
+}
+
+export const getCandidateList = async () => {
+  if (!window.ethereum) return [];
+  return await CandidateSmartContract.methods.getAllCandidates().call();
+}
+
+export const getVoterList = async () => {
+  if (!window.ethereum) return [];
+  return await VoterSmartContract.methods.getAllVoters().call();
+}
+
+export const getPartyList = async () => {
+  if (!window.ethereum) return [];
+  return await PartySmartContract.methods.getAllParties().call();
+}
+
+export const getElectionList = async () => {
+  if (!window.ethereum) return [];
+  const list = await ElectionSmartContract.methods.getAllElections().call();
+  return list?.slice(1);
+}
+
+export const getFaqs = async () => {
+  if (!window.ethereum) return [];
+  // return await SmartContract.methods.getAllFAQs().call();
+  return []
+}
+
+export const getTotalVotersCount = async () => {
+  if (!window.ethereum) return 0;
+  return await VoterSmartContract.methods.totalVoter().call();
+}
+
+export const getMaleVotersCount = async () => {
+  if (!window.ethereum) return 0;
+  return await VoterSmartContract.methods.totalMaleVoters().call();
+}
+
+export const getFemaleVotersCount = async () => {
+  if (!window.ethereum) return 0;
+  return await VoterSmartContract.methods.totalFemaleVoters().call();
+}
+
+export const getOthersVotersCount = async () => {
+  if (!window.ethereum) return 0;
+  return await VoterSmartContract.methods.totalOtherVoters().call();
+}
+
+export const getTotalCandidateCount = async () => {
+  if (!window.ethereum) return 0;
+  return await CandidateSmartContract.methods.totalCandidate().call();
+}
+
+export const getTotalPartiesCount = async () => {
+  if (!window.ethereum) return 0;
+  return await PartySmartContract.methods.totalParty().call();
+}
+
+export const getTotalElectionCount = async () => {
+  if (!window.ethereum) return 0;
+  return await ElectionSmartContract.methods.totalElection().call();
+}
+
+export const isAdmin = async (address: string) => {
+  try {
+    if (!window?.ethereum) return 0;
+    return await AuthSmartContract.methods.isAdmin(address).call();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+export const getCandidateDetails = async (address: string) => {
+  try {
+    if (!window?.ethereum) return 0;
+    return await CandidateSmartContract.methods.getCandidateDetails(address).call();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export const getVoterDetails = async (address: string) => {
+  try {
+    if (!window?.ethereum) return 0;
+    return await VoterSmartContract.methods.getVoterDetails(address).call();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export const getAllBlocks = () => {
+  try {
+    web3.eth.getBlockNumber((error, latestBlockNumber) => {
+      if (!error) {
+        console.log(`Latest block number: ${latestBlockNumber}`);
+      } else {
+        console.error(error);
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    return []
+  }
+}
