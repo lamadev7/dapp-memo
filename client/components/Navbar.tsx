@@ -19,6 +19,7 @@ import { trimAddress } from '../utils';
 import { setLoggedInAddress } from '../redux/reducers/loggedInUserReducer';
 import { useTranslations } from 'next-intl';
 import { getCurrentElection, getElectionStatus } from '../utils/common';
+import { toast } from 'react-toastify';
 
 declare var window: any;
 
@@ -100,7 +101,9 @@ const Navbar: React.FC = (): ReactElement => {
   };
 
   const onCreateElection = () => {
-    if (isElectionRunning && currentElection?.selectedCandidates?.length > 0) return;
+    if (isElectionRunning || currentElection?.candidateAddresses?.length > 0) {
+      return toast.error("Election is running or candidates are already selected !");
+    }
 
     setShowCreateElectionModal(!showCreateElectionModal);
   }
