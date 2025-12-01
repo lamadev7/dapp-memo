@@ -45,8 +45,8 @@ const SearchModal = ({ show, setOpenSearchModal }) => {
     }, 1000)
   }
 
-  const onTyping = (e) => {
-    setLoading(e.target.value.length > 0 ?? false)
+  const onTyping = (e:any) => {
+    setLoading(e.target?.value?.length > 0 ? true : false)
     setDefaultSearchShows(!(e.target.value.length > 0));
   }
 

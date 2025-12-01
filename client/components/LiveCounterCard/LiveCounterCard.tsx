@@ -21,9 +21,9 @@ const LiveCounterCard: React.FC<LiveCounterCardStruct> = ({ type, data, election
 
   // group candidate by positions
   const candidatesByPositions = _.groupBy(data, (candidate: any) => candidate.position);
-  const leadingCandidate = _.maxBy(data, "voteCount");
+  const leadingCandidate = _.maxBy(data, "totalVotesReceived");
 
-
+  console.log({leadingCandidate})
   return (
     <div
       className={`card__container ${isElectionEnd && 'bg-celebrationGif'} h-fit sm:w-[520px] max-[1140px]:w-full mt-3 border border-1 border-slate-300 rounded-1 overflow-hidden mr-3`}>
@@ -33,18 +33,22 @@ const LiveCounterCard: React.FC<LiveCounterCardStruct> = ({ type, data, election
       >
         <h6>{type}</h6>
       </div>
-      <div className={`card__body pt-3 pb-2 ${isElectionStart && 'animatedBorder'}`}>
-        <div className='card__body__hot px-4 mb-3 flex'>
-          <AnimatedAvatar src={leadingCandidate?.user?.profile} />
-          <div className='details pt-2 pl-3 mx-3'>
-            <div className='flex items-center'>
-              <span className='text-xl me-4'>{leadingCandidate?.user?.fullName}</span>
-              {isElectionEnd && <TickCircleIcon />}
-              {isElectionStart && <FaRegDotCircle className='animate-ping text-danger absolute lg:ml-[200px] max-[1100px]:ml-[100px]' />}
+      <div className={`card__body ${isElectionStart && 'animatedBorder'}`}>
+        {
+          leadingCandidate?.user && (
+            <div className='pt-3 card__body__hot px-4 mb-3 flex'>
+              <AnimatedAvatar src={leadingCandidate?.user?.profile} />
+              <div className='details pt-2 pl-3 mx-3'>
+                <div className='flex items-center'>
+                  <span className='text-xl me-4'>{leadingCandidate?.user?.fullName}</span>
+                  {isElectionEnd && <TickCircleIcon />}
+                  {isElectionStart && <FaRegDotCircle className='animate-ping text-danger absolute lg:ml-[200px] max-[1100px]:ml-[100px]' />}
+                </div>
+                <h1 id='count'>{leadingCandidate?.totalVotesReceived ?? 0}</h1>
+              </div>
             </div>
-            <h1 id='count'>{leadingCandidate?.votedVoterLists?.length}</h1>
-          </div>
-        </div>
+          )
+        }
         <div className='candidate_row px-3'>
           <h5 className='text-lg text-dark mt-3 ml-1'>Mayors</h5>
           {

@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import { 
   ELECTION_CONTRACT_ABI, 
-  ELECTION_CONTRACT_ABI_ADDRESS,
+  ELECTION_CONTRACT_ADDRESS,
 
   PARTY_CONTRACT_ABI,
   PARTY_CONTRACT_ADDRESS,
@@ -175,7 +175,7 @@ const politicalItems = [
 const electionResultTypes = [
   // { label: "Parliament Election", value: '/election/province', id: "parliament_election" },
   { label: 'District Election', value: '/election/district', id: "district_election" },
-  { label: 'Binary Election', value: '/election/binary-election', id: "local_election" }
+  // { label: 'Binary Election', value: '/election/binary-election', id: "local_election" }
 ]
 
 const voterItems = [
@@ -195,9 +195,11 @@ const StateProvinceOffices = [
 ]
 
 const ELECTION_TYPE = [
-  // { label: "Province", value: "Province" },
-  { label: "District Election", value: "District" },
-  { label: "Binary Election", value: "Local" },
+  // { label: "Presidential", value: "0" },
+  // { label: "Parliamentary", value: "1" },
+  { label: "Local", value: "2" },
+  { label: "District", value: "3" },
+  // { label: "Provincial", value: "4" },
 ]
 
 let DistrictOffices = [];
@@ -212,11 +214,11 @@ const sub_navbar_items = {
 
 const web3 = new Web3(Web3.givenProvider);
 
-export const ElectionSmartContract = new web3.eth.Contract(ELECTION_CONTRACT_ABI, ELECTION_CONTRACT_ABI_ADDRESS);
+export const AuthSmartContract = new web3.eth.Contract(AUTH_CONTRACT_ABI, AUTH_CONTRACT_ADDRESS);
+export const ElectionSmartContract = new web3.eth.Contract(ELECTION_CONTRACT_ABI, ELECTION_CONTRACT_ADDRESS);
 export const PartySmartContract = new web3.eth.Contract(PARTY_CONTRACT_ABI, PARTY_CONTRACT_ADDRESS);
 export const CandidateSmartContract = new web3.eth.Contract(CANDIDATE_CONTRACT_ABI, CANDIDATE_CONTRACT_ADDRESS);
 export const VoterSmartContract = new web3.eth.Contract(VOTER_CONTRACT_ABI, VOTER_CONTRACT_ADDRESS);
-export const AuthSmartContract = new web3.eth.Contract(AUTH_CONTRACT_ABI, AUTH_CONTRACT_ADDRESS);
 
 const METAMASK_EXT_LINK = "https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en";
 

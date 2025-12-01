@@ -17,17 +17,18 @@ export const getFormattedErrorMessage = (msgObject: string) => {
 
 export const getElectionStatus = (electionType: string, currentElection: ElectionStruct): string => {
 
+  console.log({ currentElection, electionType })
   if (currentElection?.electionType !== electionType) return "No election available !";
 
-  const current_date = moment(Date.now());
-  const startDate = moment(currentElection?.startDate);
-  const endDate = moment(currentElection?.endDate);
+  const current_date = moment().unix();
+  const startDate = moment.unix(currentElection?.startTime);
+  const endDate = moment.unix(currentElection?.endTime);
 
-  if (current_date < startDate && current_date < endDate) return "Election is starting soon."
+  if (current_date < startDate.unix() && current_date < endDate.unix()) return "Election is starting soon."
 
-  if (current_date >= startDate && current_date <= endDate) return "LIVE";
+  if (current_date >= startDate.unix() && current_date <= endDate.unix()) return "LIVE";
 
-  if (current_date >= startDate && current_date > endDate) return "ENDED";
+  if (current_date >= startDate.unix() && current_date > endDate.unix()) return "ENDED";
 
   return "No election available !";
 }

@@ -38,6 +38,7 @@ const UserCard: React.FC<UserCardStruct> = (props): React.ReactElement => {
     setIsAddressCopied(!isAddressCopied);
   }
 
+  console.log({ details })
   return (
     <div
       className='user__card h-[180px] w-[350px] px-2 mb-3  max-[500px]:w-[500px] max-[400px]:w-full bg-slate-100 rounded-[12px] hover:bg-red-20 cursor-pointer hover:bg-red-100'
@@ -59,7 +60,7 @@ const UserCard: React.FC<UserCardStruct> = (props): React.ReactElement => {
       {casteVote && electionStatus === "LIVE" &&
         <button
           className={`absolute flex justify-center items-center bg-white  ${!isVoted && "shadow-md"} m-2 py-2 px-4 rounded-pill text-sm ${isVoted && "text-slate-500 cursor-default"} border-[1px] border-slate-500 `}
-          onClick={() => !isVoted && casteVote(details?.user?._id)}
+          onClick={() => !isVoted && casteVote(details?.user?.id)}
           disabled={isVoted}
         >
           {
@@ -72,7 +73,7 @@ const UserCard: React.FC<UserCardStruct> = (props): React.ReactElement => {
       }
       <div className='flex justify-around items-center mt-4'>
         <div className='col1 flex-col'>
-          <Avatar src={details?.user?.profile} className={''} alt={'img'} size={'xl'} border={0} />
+          <Avatar src={details?.user?.profileUrl} className={''} alt={'img'} size={'xl'} border={0} />
           <div className='social__media flex justify-center mt-3'>
             <BsFacebook className='cursor-pointer hover:text-md hover:text-red-500 hover:animate-bounce' onClick={() => redirect(`https://www.facebook.com/${details?.user?.fullName}`)} />
             <BsInstagram className='mx-4 cursor-pointer hover:text-md hover:text-red-500 hover:animate-bounce' onClick={() => redirect(`https://www.instagram.com/${details?.user?.fullName}`)} />
@@ -91,10 +92,10 @@ const UserCard: React.FC<UserCardStruct> = (props): React.ReactElement => {
       <Modal show={previewModal} onClick={(e: any) => e.stopPropagation()}>
         <Modal.Body className='p-4'>
           <div className='flex justify-center mb-3'>
-            <Avatar src={details?.user?.profile} className={''} alt={'img'} size={'2xl'} border={0} />
+            <Avatar src={details?.user?.profileUrl} className={''} alt={'img'} size={'2xl'} border={0} />
           </div>
           <div className='pl-2 my-4 shadow-inner bg-slate-100 flex items-center justify-between rounded-1 w-full'>
-            <span className='pr-2'>{details?.user?._id}</span>
+            <span className='pr-2'>{details?.user?.id}</span>
             <div className={`pl-[30px] pr-[35px] py-[20px] cursor-pointer flex justify-center items-center rounded-br-md rounded-tr-md ${isAddressCopied ? "bg-success" : "bg-btnColor"}`} onClick={copyToClipboard}>
               {isAddressCopied ? <BiCheck className='text-light text-4xl absolute ml-2' /> : <BiCopy className='text-light text-2xl absolute ml-2' />}
             </div>

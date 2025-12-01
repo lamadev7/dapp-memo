@@ -16,13 +16,21 @@ const startJob = (startDate: string, endDate: string) => {
   cron.schedule(scheduleStartDateString, () => {
     console.log("startdate triggered");
 
-    pusherInstance.trigger("election", "start-election-event", {});
+    try {
+      pusherInstance.trigger("election", "start-election-event", {});
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   // start listening to the start date events
   cron.schedule(scheduleEndDateString, () => {
     console.log("endate triggered");
-    pusherInstance.trigger("election", "end-election-event", {});
+    try {
+      pusherInstance.trigger("election", "end-election-event", {});
+    } catch (error) {
+      console.error(error);
+    }
   });
 }
 

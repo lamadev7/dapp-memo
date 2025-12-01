@@ -11,6 +11,7 @@ import Head from 'next/head';
 import { useTranslations } from 'next-intl';
 import { isAdmin } from '../../utils/web3';
 import { getStorage } from '../../services';
+import moment from 'moment';
 
 declare const window: any;
 const defaultCandidateDetails = {
@@ -148,15 +149,16 @@ const CandidateRegistration = () => {
         fullName.trim(),
         citizenshipNumber.trim(),
         age?.toString()?.trim(),
-        agenda.trim(),
-        dob.trim(),
+        gender.value === "MALE" ? 0 : gender.value === "FEMALE" ? 1 : 2,
+        moment(dob).unix(),
         email.trim(),
         profileUrl.trim(),
-        partyName?.value.trim(),
         province?.value.trim(),
         district?.value.trim(),
         municipality?.value.trim(),
-        ward?.value?.toString().trim(), gender?.value?.trim()
+        ward?.value?.toString().trim(),
+        partyName?.value.trim(),
+        agenda.trim(),
       ).send({ from: loggedInAccountAddress });
 
 

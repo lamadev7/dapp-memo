@@ -70,13 +70,14 @@ contract Structure {
         uint256 totalVotes;
         bool isActive;
         ElectionStatus status;
+        string boothPlace;
+        string position;
     }
     
     enum ElectionType {
-        PRESIDENTIAL,
-        PARLIAMENTARY,
-        LOCAL,
-        PROVINCIAL
+        Local,
+        District,
+        Province
     }
     
     enum ElectionStatus {

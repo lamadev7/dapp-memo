@@ -75,7 +75,7 @@ const Details: React.FC = (): React.ReactElement => {
     setElectedCandidates({
       ...electedCandidatesList,
       selectedCandidates: checked ? [...electedCandidatesList.selectedCandidates, details.user._id] :
-        electedCandidatesList.selectedCandidates.filter((address: string) => address !== details?.user?._id)
+        electedCandidatesList.selectedCandidates.filter((address: string) => address !== details?.user?.id)
     });
   }
 

@@ -1,20 +1,37 @@
 import moment from 'moment';
 import { useTranslations } from 'next-intl';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { BsChevronLeft, BsChevronRight } from 'react-icons/bs';
 import { FcGallery } from 'react-icons/fc';
 import { Fade } from 'react-slideshow-image';
 import { GoPrimitiveDot } from 'react-icons/go';
 import _ from 'lodash';
-import { trimAddress } from '../../utils';
+import { getCandidateList, trimAddress } from '../../utils';
 import { BiEqualizer } from 'react-icons/bi';
 import AnimatedAvatar from '../AnimatedAvatar';
 import TickCircleIcon from '../TickCircleIcon';
 
 const ElectionCard = ({ details, src, electionStatus }) => {
   const [showIcon, setShowIcon] = useState(false);
-  const { title, startDate, endDate, candidates, voters } = details ?? {};
+  const { title, startTime, endTime, candidates, voters } = details ?? {};
+
+  const [candidateLists, setCandidateLists] = useState(candidates);
+
+  useEffect(() => {
+    fetchCandidates();
+  }, [details]);
+
+  const fetchCandidates = async () => {
+    try {
+      const candidates = await getCandidateList();
+      const filteredCandidates = candidates.filter((candidate) => details?.candidateAddresses?.includes(candidate.user.id));
+      console.log({ filteredCandidates });
+      setCandidateLists(filteredCandidates);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   let totalVotes = 0;
   candidates?.forEach((d) => {
@@ -57,8 +74,8 @@ const ElectionCard = ({ details, src, electionStatus }) => {
       </div>
       <div className={`flex flex-column pt-2 pb-4 px-3 ${electionStatus === "LIVE" && "animatedBorder"}`}>
         <span className='text-[18px] mb-1 font-bold text-black select-none'>{title}</span>
-        <span className='select-none'><span className='font-bold'>{t("held")}:</span> {moment(startDate).format("lll")}</span>
-        <span className='select-none my-1'><span className='font-bold'>{t("ended")}:</span> {moment(endDate).format("lll")}</span>
+        <span className='select-none'><span className='font-bold'>{t("held")}:</span> {moment.unix(startTime).format("lll")}</span>
+        <span className='select-none my-1'><span className='font-bold'>{t("ended")}:</span> {moment.unix(endTime).format("lll")}</span>
         <span className='mb-1 select-none'><span className='font-bold select-none'>{t("total_candidate")}:</span> {candidates?.length}</span>
         <span className='mb-1 select-none'><span className='font-bold select-none'>{homepageT("total_voters")}:</span> {voters}</span>
         <span className='select-none'><span className='font-bold select-none'>{t("total_vote")}:</span> {totalVotes}</span>
@@ -84,9 +101,9 @@ const ElectionCard = ({ details, src, electionStatus }) => {
           </Fade>
           <h5 className='mt-5 font-bold'>Candidates</h5>
           <div className='flex flex-wrap pb-3'>
-            {candidates && candidates.length > 0 && candidates?.map((data: any) => {
-              const candidateA = candidates[0];
-              const candidateB = candidates[1];
+            {candidateLists && candidateLists.length > 0 && candidateLists?.map((data: any) => {
+              const candidateA = candidateLists[0];
+              const candidateB = candidateLists[1];
               const candidateAVotes = candidateA?.votedVoterLists?.length;
               const candidateBVotes = candidateB?.votedVoterLists?.length;
 
@@ -101,7 +118,7 @@ const ElectionCard = ({ details, src, electionStatus }) => {
                     <div
                       className='card__title pl-4 pt-2 flex items-center justify-between bg-slate-100 border-l-0 border-r-0 border-t-0 border-b-2 border-black-500 cursor-pointer'
                     >
-                      <h6>{trimAddress(data?.user?._id)}</h6>
+                      <h6>{trimAddress(data?.user?.id)}</h6>
                       {
                         !winnerAddress && <span className='-mt-2 mr-4 text-red-500 flex items-center'>
                           <BiEqualizer className='mx-2 animate-ping' /> Equal
@@ -114,7 +131,7 @@ const ElectionCard = ({ details, src, electionStatus }) => {
                         <div className='details pt-2 pl-3 mx-3 w-100'>
                           <div className='flex items-center'>
                             <span className='text-xl me-2'>{data?.user?.fullName}</span>
-                            {data?.user?._id === winnerAddress && <TickCircleIcon />}
+                            {data?.user?.id === winnerAddress && <TickCircleIcon />}
                           </div>
                           <div className='flex justify-content-between'>
                             <h1 id='count'>{data?.votedVoterLists?.length}</h1>

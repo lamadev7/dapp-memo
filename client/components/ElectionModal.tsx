@@ -4,7 +4,7 @@ import { Modal } from 'react-bootstrap';
 import Select from "react-select";
 import { toast } from 'react-toastify';
 import { DISTRICT, ELECTION_TYPE, ElectionSmartContract } from '../constants';
-import { createElection, getHostedUrl } from '../utils/action';
+import { createElection } from '../utils/action';
 import Avatar from './Avatar';
 import { BsFacebook, BsInstagram, BsTwitter } from 'react-icons/bs';
 import { getCandidateList, getElectionList } from '../utils';
@@ -15,13 +15,16 @@ import { getStorage } from '../services';
 const currentDate = new Date();
 const defaultDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}T${currentDate.getHours()}:${currentDate.getMinutes()}`;
 const defaultElectionData = {
+  id: "",
   title: "",
   description: "",
-  startDate: defaultDate,
-  endDate: defaultDate,
+  startTime: defaultDate,
+  endTime: defaultDate,
   electionType: null,
   electionImages: null,
-  selectedCandidates: []
+  selectedCandidateAddresses: [],
+  boothPlace: "",
+  position: ""
 }
 const districtElectionPosition = [
   { label: "Mayor", value: "mayor" },
@@ -38,8 +41,6 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
   const [loading, setLoading] = useState(false);
   const loggedInAccountAddress = getStorage("loggedInAccountAddress");
   const [openCandidateModal, setOpenCandidateModal] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState(null);
-  const [boothPlace, setBoothPlace] = useState(null);
   const [recentlyCreatedElection, setRecentlyCreatedElection] = useState(null);
   const dispatch = useDispatch();
 
@@ -54,8 +55,8 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
     setElectionList(elections);
 
     if (!Object.keys(currentElection ?? {})?.length) return;
-    const { title, description, startDate, endDate, electionType }: any = currentElection;
-    dispatch(setCurrentElection({ title, description, startDate, endDate, electionType }));
+    const { title, description, startTime, endTime, electionType }: any = currentElection;
+    dispatch(setCurrentElection({ title, description, startTime, endTime, electionType }));
   }
 
   useEffect(() => {
@@ -63,7 +64,7 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
   }, []);
 
   useEffect(() => {
-    if (!recentlyCreatedElection?.candidates?.length && moment(recentlyCreatedElection?.endDate).isAfter(new Date())) {
+    if (!recentlyCreatedElection?.candidates?.length && moment.unix(recentlyCreatedElection?.endTime).isBefore(moment().unix())) {
       setElection({ ...election, electionType: recentlyCreatedElection?.electionType });
       setShowCreateElectionModal(false);
       setOpenCandidateModal(true);
@@ -72,27 +73,28 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
 
   useEffect(() => {
     setDisabled(
-      !election.title || !election.description || !election.startDate || !election.endDate
+      !election.title || !election.description || !election.startTime || !election.endTime
     );
-  }, [election.title, election.description, election.startDate, election.endDate]);
+  }, [election.title, election.description, election.startTime, election.endTime]);
 
   const onChange = (name: string, value: string) => {
     setElection({ ...election, [name]: value });
 
     if (name === "electionType") {
-      setSelectedPosition(null);
       setElection({ ...defaultElectionData, electionType: value });
     }
   };
 
+  console.log({ election })
   const onCreate = async () => {
     setLoading(true);
 
     try {
-      let { title, description, startDate, endDate, electionType, electionImages } = election;
+      let { title, description, startTime, endTime, electionType, electionImages, selectedCandidateAddresses, boothPlace, position } = election;
+      console.log({ title, description, startTime, endTime, electionType, electionImages, selectedCandidateAddresses, boothPlace, position })
       const formData = new FormData();
 
-      if (!moment(startDate).isAfter(new Date()) || !moment(startDate).isBefore(endDate)) {
+      if (!moment(startTime).isAfter(new Date()) || !moment(startTime).isBefore(endTime)) {
         setLoading(false);
         return toast.error("Please give correct datetime !")
       }
@@ -101,17 +103,22 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
         formData.append("images", file);
       })
 
-      await createElection({ title, description, startDate, endDate });
-      const { url }: any = await getHostedUrl(formData);
-      const galleryImagesUrl = url;
+      await createElection({ title, description, startTime, endTime });
+      // const { url }: any = await getHostedUrl(formData);
+      // const galleryImagesUrl = url;
+
+      const galleryImagesUrl = [];
 
       await ElectionSmartContract.methods.createElection(
         title,
         description,
-        startDate,
-        endDate,
-        electionType,
-        galleryImagesUrl
+        moment(startTime).unix(),
+        moment(endTime).unix(),
+        electionType.value === "District" ? 3 : electionType.value === "Local" ? 2 : 1,
+        galleryImagesUrl,
+        selectedCandidateAddresses,
+        boothPlace,
+        position
       ).send({ from: loggedInAccountAddress });
 
       setShowCreateElectionModal(false);
@@ -128,22 +135,16 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
   }
 
   const onCandidateSelected = (checked: boolean, details: any) => {
-    let temp = [...election.selectedCandidates];
-    const _details = { ...details, position: selectedPosition };
+    let temp = [...election.selectedCandidateAddresses];
 
     // only allow one person from specific party 
-    if (election?.electionType === "District") {
-      election.selectedCandidates.find((d) => {
-        return d?.partyName === details?.partyName && d?.position === details?.position;
-      })
-    }
+    const isCandidateAlreadySelected = temp.some((address: any) => address === details?.user?.id);
+    if(isCandidateAlreadySelected) return toast.error("Candidate already selected !");
 
-    if (!checked) temp = election.selectedCandidates.filter((candidate: any) => candidate?.user?._id !== details?.user?._id);
-    else temp.push(_details);
+    if (!checked) temp = temp.filter((address: any) => address !== details?.user?.id);
+    else temp.push(details?.user?.id);
 
-    temp = temp.map((candidate: any) => ({ ...candidate, votedVoterLists: [] }));
-
-    setElection({ ...election, selectedCandidates: temp });
+    setElection({ ...election, selectedCandidateAddresses: [...temp] });
   }
 
   const onOpenCandidateModal = () => {
@@ -154,39 +155,6 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
     setElection(defaultElectionData);
     setShowCreateElectionModal(!show);
     setCandidateList([...originalCandidateList]);
-    setBoothPlace(null);
-  }
-
-  const uploadSelectedCandidates = async () => {
-    try {
-      setLoading(true);
-      const isLocalElection = election?.electionType === "Local";
-      const selectedCandidates = election?.selectedCandidates?.map((candidate) => ({
-        _id: candidate?.user?._id,
-        position: isLocalElection ? "" : candidate?.position,
-        votingBooth: isLocalElection ? "" : boothPlace
-      }))?.filter((candidate) => isLocalElection ? true : (candidate?.position === selectedPosition && candidate?.votingBooth === boothPlace));
-
-      if (isLocalElection && selectedCandidates?.length > 2) return toast.warning("Only 2 candidates are allow for binary election !!");
-      console.log(selectedCandidates, recentlyCreatedElection?.startDate)
-      await ElectionSmartContract.methods.addSelectedCandidates(selectedCandidates, recentlyCreatedElection?.startDate).send({ from: loggedInAccountAddress });
-
-      const filterCandidates = _candidateLists?.filter((candidate: any) => !election.selectedCandidates.some((_candidate) => _candidate.user._id === candidate.user._id))
-      setCandidateList([...filterCandidates]);
-
-      setLoading(false);
-      setBoothPlace(null);
-      setOpenCandidateModal(!isLocalElection);
-
-      fetchData();
-
-      toast.success("Selected candidates added successfully.");
-    } catch (error) {
-      console.log(error)
-      setLoading(false);
-      setBoothPlace(null);
-      toast.error("Fail to add selected candidates !");
-    }
   }
 
   const districtOptions = [];
@@ -197,7 +165,7 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
       <Modal show={openCandidateModal} size='xl'>
         <Modal.Body className='px-4'>
           <h4 className='my-3'>Candidate Selection</h4>
-          {election?.electionType === "District" &&
+          {(election?.electionType === "1" || election?.electionType === "3") &&
             <div className='flex sm:flex-row xsm:flex-col'>
               <div className='w-[300px] my-4'>
                 <span>Select Candidate Position</span>
@@ -205,10 +173,10 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
                   className='mt-1'
                   options={districtElectionPosition}
                   placeholder="Select Position"
-                  onChange={({ label, value }) => {
-                    setSelectedPosition(value);
+                  onChange={({ value }) => {
+                    setElection({ ...election, position: value });
                   }}
-                  isDisabled={election.selectedCandidates.filter(candidate => candidate.position === selectedPosition).length > 3 || !boothPlace}
+                  isDisabled={!election?.boothPlace}
                 />
               </div>
               <div className='w-[300px] my-4 ml-4'>
@@ -217,8 +185,8 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
                   className='mt-1'
                   options={districtOptions}
                   placeholder="Select District"
-                  onChange={({ label, value }) => {
-                    setBoothPlace(value);
+                  onChange={({ value }) => {
+                    setElection({ ...election, boothPlace: value });
                   }}
                 />
               </div>
@@ -227,41 +195,26 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
           <div className='flex flex-wrap'>
             {(_candidateLists && _candidateLists?.length > 0) ?
               _candidateLists.map((details: any) => {
-                if (election.selectedCandidates?.find((d) => d?.user?._id === details?.user?._id && d?.position !== selectedPosition)) return;
-
                 const formattedEmail = details?.user?.email.split("@")[0];
-                const isLocalElection = election?.electionType === "Local";
-                const isCandidateSelected = () => {
-                  if (isLocalElection) return election.selectedCandidates?.find(candidate => candidate?.user?._id === details?.user?._id);
-                  return election.selectedCandidates?.find(candidate => candidate?.position === selectedPosition && candidate?.user?._id === details?.user?._id);
-                };
-                const isBinaryElection = isLocalElection && election?.selectedCandidates?.length >= 2 && !isCandidateSelected();
-                const isCheckboxDisabled = () => {
-                  if (!isLocalElection) {
-                    return !selectedPosition || election.selectedCandidates.find((candidate) => candidate.partyName === details.partyName
-                      && candidate.position === selectedPosition && candidate.user._id !== details.user._id || details.boothPlace !== candidate.boothPlace);
-
-                  } else { return isBinaryElection }
-                };
-
-
+                const isDisabledCheckbox = !election?.position;
+                
                 return (
                   <div className='user__card h-[180px] w-[340px] px-2 mb-3 mr-4 max-[500px]:w-[500px] max-[400px]:w-full bg-slate-100 rounded-[12px] hover:bg-red-20'>
-                    <div className={`absolute m-2 p-2 shadow-lg border-[1px] ${!isCheckboxDisabled() ? "bg-white border-slate-500" : "bg-slate-200"} rounded-circle h-[45px] w-[45px] flex justify-center items-center`}>
+                    <div className={`absolute m-2 p-2 shadow-lg border-[1px] rounded-circle h-[45px] w-[45px] flex justify-center items-center ${isDisabledCheckbox ? "bg-gray-100" : "bg-white border-slate-500"}`}>
                       <input
-                        className={`h-[20px] w-[20px] ${!isCheckboxDisabled() && "cursor-pointer"}`}
+                        className={`h-[20px] w-[20px] cursor-pointer ${isDisabledCheckbox ? "cursor-default" : "cursor-pointer"}`}
                         type="checkbox"
                         onClick={(e: any) => {
                           onCandidateSelected(e.target.checked, details);
                         }}
                         key={details?.user?.citizenshipNumber}
-                        checked={isCandidateSelected()}
-                        disabled={isCheckboxDisabled()}
+                        disabled={!election?.position}
+                        checked={election?.selectedCandidateAddresses?.find((address: any) => address === details?.user?.id)}
                       />
                     </div>
                     <div className='flex justify-around items-center mt-4'>
                       <div className='col1 flex-col'>
-                        <Avatar src={details?.user?.profile} className={''} alt={'img'} size={'xl'} border={0} />
+                        <Avatar src={details?.user?.profileUrl} className={''} alt={'img'} size={'xl'} border={0} />
                         <div className='social__media flex justify-center mt-3'>
                           <BsFacebook className='cursor-pointer hover:text-md hover:text-red-500 hover:animate-bounce' />
                           <BsInstagram className='mx-4 cursor-pointer hover:text-md hover:text-red-500 hover:animate-bounce' />
@@ -284,16 +237,8 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
         <Modal.Footer>
           <button
             className="btn bg-light px-4"
-            onClick={() => {
-              setOpenCandidateModal(false);
-            }}
+            onClick={() => {setOpenCandidateModal(false);}}
           >Close</button>
-          <button
-            className="btn bg-btnColor px-4 text-light"
-            onClick={() => {
-              uploadSelectedCandidates();
-            }}
-          >{loading ? "Uploading..." : "Upload Selected Candidates"}</button>
         </Modal.Footer >
       </Modal >
       <Modal show={show} centered>
@@ -333,16 +278,16 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
                 <input
                   type="datetime-local"
                   className="form-control mt-1 shadow-none"
-                  value={election.startDate}
-                  onChange={(e) => onChange("startDate", e.target.value)} />
+                  value={election.startTime}
+                  onChange={(e) => onChange("startTime", e.target.value)} />
               </div>
               <div className='w-50 ml-2'>
                 <span>End Date & time</span>
                 <input
                   type="datetime-local"
-                  value={election.endDate}
+                  value={election.endTime}
                   className="form-control mt-1 shadow-none"
-                  onChange={(e) => onChange("endDate", e.target.value)} />
+                  onChange={(e) => onChange("endTime", e.target.value)} />
               </div>
             </div>
             <div className='w-full mt-4'>
@@ -356,17 +301,13 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
               />
             </div>
             <button
-              className={`h-fit w-full flex items-center mt-4 rounded-3 border border-1 border-slate-400 bg-slate-200 ${recentlyCreatedElection ? election?.electionType && "cursor-pointer hover:bg-slate-100" : "hidden"}`}
+              className={`h-fit w-full flex items-center mt-4 rounded-3 border border-1 border-slate-400 bg-slate-200 ${election?.electionType ? "cursor-pointer hover:bg-slate-100" : "hidden"}`}
               onClick={onOpenCandidateModal}
-              disabled={!recentlyCreatedElection?.length}
-              onMouseOver={() => {
-                // if (!election?.electionType) showTooltip
-              }}
             >
               <span className='flex-shrink px-[14px] text-dark'>Open modal</span>
               <div className='bg-white flex-1 text-start px-3 py-[8px] text-slate-800'>{
                 !_candidateLists?.length ? "Candidates not found !" :
-                  (!recentlyCreatedElection ? "Choose candidates" : `Selected Candidates: ${election.selectedCandidates?.length}`)
+                  (!election?.selectedCandidateAddresses?.length ? "Choose candidates" : `Selected Candidates: ${election.selectedCandidateAddresses?.length}`)
               }</div>
             </button>
           </div >

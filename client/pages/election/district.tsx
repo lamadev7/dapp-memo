@@ -9,7 +9,7 @@ import _ from 'lodash';
 import { ElectionSmartContract } from '../../constants';
 import { getStorage } from '../../services';
 import { toast } from 'react-toastify';
-import { getVoterDetails } from '../../utils/web3';
+import { getCandidateList, getVoterDetails, getVoterList } from '../../utils/web3';
 import { useTranslations } from 'next-intl';
 
 
@@ -29,11 +29,25 @@ export default function Home() {
     const electionList = await getElectionList();
     const currentElection: any = electionList.at(-1);
 
-    if (currentElection.electionType !== "District") return;
+    if (currentElection?.electionType !== "1") return;
+    const electionStatus = getElectionStatus("1", currentElection);
 
-    const electionStatus = getElectionStatus("District", currentElection);
-    const groupByCandidates = _.groupBy(currentElection?.candidates, (candidate) => candidate.votingBooth);
+    // populate candidates with voting booth
+    const _candidateLists = await getCandidateList();
+    const populatedCandidates = currentElection?.candidateAddresses?.map((candidateAddress) => {
+      const _candidate = _candidateLists?.find((c) => c.user.id === candidateAddress);
+      if(_candidate) {
+        return {
+          ..._candidate,
+          votingBooth: currentElection?.boothPlace,
+          position: currentElection?.position
+        }
+      }
+      return null;
+    }).filter(Boolean);
+    const groupByCandidates = _.groupBy(populatedCandidates, (candidate) => candidate.votingBooth);
 
+    console.log({ groupByCandidates, populatedCandidates })
     //extract candidate from district
     const _totalCandidates = [];
     Object.keys(groupByCandidates).forEach((district: string) => {
@@ -83,7 +97,7 @@ export default function Home() {
       if (electionStatus !== "LIVE") return toast.warn("Cannot vote before election !");
 
 
-      const selectedCandidates = candidateLists?.find((candidate) => candidate.user._id === _candidateID);
+      const selectedCandidates = candidateLists?.find((candidate) => candidate.user.id === _candidateID);
 
       // restrict candidate to not vote more than one time
       const isCandidate = candidateLists.find((candidate: any) => candidate?.votedVoterLists?.includes(_candidateID));
@@ -93,7 +107,8 @@ export default function Home() {
       }
 
       const voterDetails = await getVoterDetails(_loggedInAccountAddress);
-      const electionAddress = electionList.at(-1)?.startDate;
+
+      const electionAddress = electionList.at(-1)?.id;
 
       // vote limit count
       if (voterDetails.voteLimitCount === "3") return toast.info("You've exceed the vote limit count !");
@@ -102,23 +117,25 @@ export default function Home() {
       let isExit = false;
       districts?.forEach((district) => {
         const candidatesByPositions = _.groupBy(currentElection[district], (candidate: any) => candidate.position);
+        console.log({ candidatesByPositions, currentElection })
         const { mayor, deput_mayor, ward_councilor } = candidatesByPositions;
-        const isMayorVoted = _.some(mayor, (candidate: any) => candidate.votedVoterLists.includes(_loggedInAccountAddress) && candidate.user._id !== _candidateID);
-        const isDeputyMayorVoted = _.some(deput_mayor, (candidate: any) => candidate.votedVoterLists.includes(_loggedInAccountAddress) && candidate.user._id !== _candidateID);
-        const isWardCouncilorVoted = _.some(ward_councilor, (candidate: any) => candidate.votedVoterLists.includes(_loggedInAccountAddress) && candidate.user._id !== _candidateID);
+
+        const isMayorVoted = _.some(mayor, (candidate: any) => candidate?.votedVoterLists?.includes(_loggedInAccountAddress) && candidate?.user?._id !== _candidateID);
+        const isDeputyMayorVoted = _.some(deput_mayor, (candidate: any) => candidate?.votedVoterLists?.includes(_loggedInAccountAddress) && candidate?.user?.id !== _candidateID);
+        const isWardCouncilorVoted = _.some(ward_councilor, (candidate: any) => candidate?.votedVoterLists?.includes(_loggedInAccountAddress) && candidate?.user?.id !== _candidateID);
         if ((isMayorVoted && _position === "mayor") || (isDeputyMayorVoted && _position === "deput_mayor") || (isWardCouncilorVoted && _position === "ward_councilor")) {
           isExit = true;
           return toast.info("Cannot vote multiple of same seats !")
         };
       })
-
       if (isExit) return;
 
       const isAlreadyVoted = selectedCandidates?.votedVoterLists?.includes(_loggedInAccountAddress) ?? false;
 
       if (isAlreadyVoted) return toast.error("You've already casted vote !");
 
-      await ElectionSmartContract.methods.vote(_candidateID, electionAddress).send({ from: _loggedInAccountAddress });
+      console.log({ _candidateID, electionAddress, _loggedInAccountAddress,  })
+      await ElectionSmartContract.methods.vote(electionAddress, _candidateID).send({ from: _loggedInAccountAddress });
 
       await fetchData();
       toast.success("Vote caste successfully.");
@@ -152,10 +169,12 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className='lg:w-[1100px] flex justify-around flex-wrap'>
-            {electionStatus && districts?.length > 0 && districts?.map((district: any) =>
-              <LiveCounterCard type={district} data={currentElection[district]} electionStatus={electionStatus} casteVote={casteVote} />
-            )}
+          <div className='pl-4 lg:w-[1100px] flex flex-wrap'>
+            {electionStatus && districts?.length > 0 && districts?.map((district: any) => {
+              return (
+                <LiveCounterCard type={district} data={currentElection[district]} electionStatus={electionStatus} casteVote={casteVote} />
+              );
+            })}
           </div>
         </div>
       </div>

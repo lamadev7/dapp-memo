@@ -46,7 +46,7 @@ interface CandidateDetails extends UserDetails {
     profile: string,
     fullName: string
   },
-  votedVoterLists: Array<string>
+  totalVotesReceived: number
 }
 
 interface VoterDetails extends UserDetails {
@@ -83,8 +83,8 @@ interface UserCardStruct {
 interface ElectionStruct {
   title: string;
   description: string;
-  startDate: string;
-  endDate: string;
+  startTime: number;
+  endTime: number;
   electionType: string;
   electedCandidates: Array<String>;
 }

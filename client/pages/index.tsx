@@ -20,6 +20,7 @@ import { toast } from 'react-toastify';
 import { useTranslations } from 'next-intl';
 import { useSelector } from 'react-redux';
 import electionChannel from '../services/pusher-events';
+import moment from 'moment';
 
 export default function Home() {
   const homepageTranslate = useTranslations("homepage");
@@ -54,21 +55,6 @@ export default function Home() {
 
   useEffect(() => {
     fetchAllData();
-
-    const browserZoomLevel = Math.round((window.outerWidth / window.innerWidth) * 100);
-    if (!(browserZoomLevel === 80 || browserZoomLevel === 102) && browserZoomLevel < 170 && browserZoomLevel < 110) {
-      setTimeout(() => {
-        toast.info("Please, Unzoom your browser screen to 80% for better view. Thanks !", {
-          className: "w-[600px]",
-          toastId: 123,
-          position: "top-center"
-        })
-      }, 1000);
-    }
-
-    return () => {
-      window.removeEventListener("resize", null);
-    }
   }, []);
 
 
@@ -78,11 +64,10 @@ export default function Home() {
 
 
   if (electionLists?.length > 0) {
-    const { startDate } = electionLists?.at(-1);
-
-    if (new Date() < new Date(startDate)) {
+    const { startTime } = electionLists?.at(-1);
+    if (moment.unix(startTime).isAfter(moment().unix())) {
       const interval = setInterval(() => {
-        const diff = new Date(startDate).getTime() - new Date().getTime();
+        const diff = moment.unix(moment().unix()).diff(moment.unix(startTime));
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -261,7 +246,7 @@ export default function Home() {
                       <ElectionCard
                         key={i}
                         details={electionDetails}
-                        src={election.galleryImagesUrl[0]}
+                        src={election?.galleryImagesUrl?.[0]}
                         electionStatus={election.startDate === currentElection.startDate && electionStatus}
                       />
                     )

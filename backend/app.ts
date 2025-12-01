@@ -14,7 +14,7 @@ const app = express();
 // middlewares
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false}));
-app.use(cors());
+app.use(cors("*"));
 app.use(helmet());
 app.use(routes);
 

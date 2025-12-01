@@ -77,7 +77,10 @@ contract ElectionManager is Structure, Auth, ReentrancyGuard, Pausable {
         uint256 _startTime,
         uint256 _endTime,
         ElectionType _electionType,
-        string[] memory _galleryUrls
+        string[] memory _galleryUrls,
+        address[] memory _candidateAddresses,
+        string memory _boothPlace,
+        string memory _position
     ) public onlyRole(ADMIN_ROLE) returns (bytes32) {
         require(bytes(_title).length > 0, "Title required");
         require(_startTime > block.timestamp, "Start time must be in future");
@@ -97,7 +100,9 @@ contract ElectionManager is Structure, Auth, ReentrancyGuard, Pausable {
         election.isActive = true;
         election.status = ElectionStatus.PENDING;
         election.totalVotes = 0;
-        
+        election.candidateAddresses = _candidateAddresses;
+        election.boothPlace = _boothPlace;
+        election.position = _position;
         electionIds.push(electionId);
         totalElections++;
         
@@ -134,7 +139,7 @@ contract ElectionManager is Structure, Auth, ReentrancyGuard, Pausable {
     function vote(
         bytes32 _electionId,
         address _candidateId
-    ) public nonReentrant whenNotPaused electionExists(_electionId) electionIsActive(_electionId) {
+    ) public nonReentrant whenNotPaused electionExists(_electionId) {
         address voter = msg.sender;
         
         require(voterContract.isRegisteredVoter(voter), "Not a registered voter");

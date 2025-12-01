@@ -9,7 +9,7 @@ const { candidateModal, partyModel } = require("../../../infrastructure/models/i
 const candidateSignup = async (req: Request, res: Response) => {
   try {
     const { fullName, citizenshipNumber, province, district, municipality, ward, email, password } = req.body;
-    const path = uploadFileToFirebaseStorage(UPLOAD_FOLDER_PATH, req?.file?.filename, "candidates");
+    const path = uploadFileToFirebaseStorage(req?.file?.filename);
     const imgHostedURL = path;
 
     const response = await new candidateModal({
@@ -56,7 +56,7 @@ const getCandidateLists = async (req: Request, res: Response) => {
 const partySignup = async (req: Request, res: Response) => {
   try {
     const { partyName, totalMembers, agenda } = req.body;
-    const path = uploadFileToFirebaseStorage(UPLOAD_FOLDER_PATH, req?.file?.filename, "party");
+    const path = uploadFileToFirebaseStorage(req?.file?.filename);
     const imgHostedURL = path;
 
     const response = await new partyModel({

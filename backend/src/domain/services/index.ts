@@ -1,8 +1,8 @@
 const startElectionCronJob = require("./cron/election-cron");
 
 
-const uploadFileToFirebaseStorage =  (folderPath: string, fileName: string, collectionName: string) => {
-  return `${folderPath}/${fileName}`;  
+const uploadFileToFirebaseStorage =  (fileName: string) => {
+  return `${process.env.BASE_URL}/media/${fileName}`;  
 }
 
 module.exports = {

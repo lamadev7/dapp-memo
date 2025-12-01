@@ -11,6 +11,7 @@ import Head from 'next/head';
 import { useTranslations } from 'next-intl';
 import _ from 'lodash';
 import { PulseLoader } from 'react-spinners';
+import moment from 'moment';
 
 const defaultOptions = { label: '', value: '' };
 const defaultVoterDetails = {
@@ -105,7 +106,6 @@ const VoterRegistration = () => {
         profileUrl, dob, gender
       }: any = voterDetails;
 
-
       // filter options value
       province = province.value;
       district = district.value;
@@ -159,14 +159,14 @@ const VoterRegistration = () => {
         fullName,
         citizenshipNumber,
         age,
-        dob,
+        gender === "MALE" ? 0 : gender === "FEMALE" ? 1 : 2,
+        moment(dob).unix(),
         email,
         profile,
         province,
         district,
         municipality,
-        ward,
-        gender
+        ward
       ).send({ from: loggedInAccountAddress });
 
 

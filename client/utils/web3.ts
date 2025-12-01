@@ -62,7 +62,7 @@ export const getTotalCandidateCount = async () => {
 
 export const getTotalPartiesCount = async () => {
   if (!window.ethereum) return 0;
-  return await PartySmartContract.methods.totalParty().call();
+  return await PartySmartContract.methods.totalParties().call();
 }
 
 export const getTotalElectionCount = async () => {

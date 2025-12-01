@@ -15,9 +15,17 @@ contract Auth is AccessControl {
     
     constructor() {
         adminAddress = msg.sender;
-        // ✅ Only grant ADMIN_ROLE (which is what you actually use)
-        // _grantRole(ADMIN_ROLE, msg.sender);
-        emit AdminChanged(address(0), msg.sender);
+        
+        // ✅ CRITICAL: Grant DEFAULT_ADMIN_ROLE first
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        
+        // ✅ Set up role hierarchy (who can grant what)
+        _setRoleAdmin(ADMIN_ROLE, DEFAULT_ADMIN_ROLE);
+        _setRoleAdmin(ELECTION_OFFICER_ROLE, ADMIN_ROLE);
+        _setRoleAdmin(VOTER_ROLE, ADMIN_ROLE);
+        
+        // ✅ Now grant ADMIN_ROLE
+        _grantRole(ADMIN_ROLE, msg.sender);
     }
     
     function isAdmin(address _account) public view returns (bool) {
