@@ -65,7 +65,8 @@ export default function Home() {
 
   if (electionLists?.length > 0) {
     const { startTime } = electionLists?.at(-1);
-    if (moment.unix(startTime).isAfter(moment().unix())) {
+
+    if (moment.unix(startTime).isBefore(moment().unix())) {
       const interval = setInterval(() => {
         const diff = moment.unix(moment().unix()).diff(moment.unix(startTime));
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -246,7 +247,7 @@ export default function Home() {
                       <ElectionCard
                         key={i}
                         details={electionDetails}
-                        src={election?.galleryImagesUrl?.[0]}
+                        src={election?.galleryUrls?.[0] ?? ''}
                         electionStatus={election.startDate === currentElection.startDate && electionStatus}
                       />
                     )

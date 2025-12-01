@@ -16,8 +16,6 @@ export const getFormattedErrorMessage = (msgObject: string) => {
 }
 
 export const getElectionStatus = (electionType: string, currentElection: ElectionStruct): string => {
-
-  console.log({ currentElection, electionType })
   if (currentElection?.electionType !== electionType) return "No election available !";
 
   const current_date = moment().unix();

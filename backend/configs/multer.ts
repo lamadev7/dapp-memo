@@ -6,8 +6,11 @@ const storage = multer.diskStorage({
     cb(null, UPLOAD_FOLDER_PATH);
   },
   filename: (req: any, file: any, cb: any) => {
-    const orginalFileName = file.originalname.split(".");
-    const fileName = `${orginalFileName[0]}-${Date.now()}.${orginalFileName[1]}`;
+    const originalFileName = file.originalname;
+    const fileExt = originalFileName.substring(originalFileName.lastIndexOf('.'));
+    const baseName = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
+    const safeBaseName = baseName.replace(/[^a-zA-Z0-9-_]/g, '_');
+    const fileName = `${safeBaseName}-${Date.now()}${fileExt}`;
     cb(null, fileName);
   }
 });

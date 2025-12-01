@@ -189,7 +189,6 @@ const Navbar: React.FC = (): ReactElement => {
               openProfileDropdown && isLoggedIn &&
               <div className='profile__dropdown position-absolute bg-slate-100 py-2 px-2 mr-4 right-0 mt-1 bg-white shadow-sm'>
                 <div className='profile__dropdown__items flex flex-column'>
-                  <span className='flex items-center' onClick={handleAccountSwitch}><AiOutlineUserSwitch className='mr-3' /> Switch Account</span>
                   <span className={`flex items-center ${isAddressCopied && "bg-red-100 hover:bg-red-100"}`} onClick={copyToClipboard}><BiCopy className='mr-3' />{isAddressCopied ? "Copied" : "Copy Address"}</span>
                 </div>
               </div>
@@ -216,17 +215,6 @@ const Navbar: React.FC = (): ReactElement => {
         {/*  */}
         <div className='items w-[700px] justify-end items-center text-slate-600 lg:flex sm:hidden xsm:hidden'>
           {isAdminAddress && <span className='pr-5 text-sm cursor-pointer hover:opacity-70 border-r-2 border-slate-400' onClick={onCreateElection}>{t("create_election")}</span>}
-          <span className='px-4 text-sm cursor-pointer hover:opacity-70 border-r-2 border-slate-400' onClick={() => navigate("/voter-education/voter-faqs")}>{t("faq")}</span>
-          <select
-            className='mx-4 text-sm cursor-pointer hover:opacity-70 bg-slate-100 outline-0'
-            onChange={(e: any) => onLanguageChange(e.target.value)}
-          >
-            <option defaultValue={currentLanguage} selected>{currentLanguage}</option>
-            {translatedLanguageOptions.map((d, i) => {
-              return (<option key={i}>{d.label}</option>)
-            })}
-          </select>
-          <span className='px-4 cursor-pointer hover:opacity-70 border-r-2 border-slate-400 border-l-2 border-slate-400' onClick={() => navigate("mail")}><AiOutlineMail className='text-lg' /></span>
           <span className='px-4 cursor-pointer hover:opacity-70 border-r-2 border-slate-400' onClick={openSearchModal}><AiOutlineSearch className='text-xl' /></span>
           {
             isLoggedIn ?
@@ -250,9 +238,8 @@ const Navbar: React.FC = (): ReactElement => {
           }
           {
             openProfileDropdown && isLoggedIn &&
-            <div className='profile__dropdown position-absolute bg-slate-100 py-2 px-2 mr-1 right-0 mt-[130px] shadow-sm'>
+            <div className='profile__dropdown position-absolute bg-slate-100 py-2 px-2 mr-1 right-0 mt-[90px] shadow-sm'>
               <div className='profile__dropdown__items flex flex-column'>
-                <span className='flex items-center' onClick={handleAccountSwitch}><AiOutlineUserSwitch className='mr-3' /> Switch Account</span>
                 <span className={`flex items-center ${isAddressCopied && "bg-red-100 hover:bg-red-100"}`} onClick={copyToClipboard}><BiCopy className='mr-3' />{isAddressCopied ? "Copied" : "Copy Address"}</span>
               </div>
             </div>

@@ -23,7 +23,6 @@ const LiveCounterCard: React.FC<LiveCounterCardStruct> = ({ type, data, election
   const candidatesByPositions = _.groupBy(data, (candidate: any) => candidate.position);
   const leadingCandidate = _.maxBy(data, "totalVotesReceived");
 
-  console.log({leadingCandidate})
   return (
     <div
       className={`card__container ${isElectionEnd && 'bg-celebrationGif'} h-fit sm:w-[520px] max-[1140px]:w-full mt-3 border border-1 border-slate-300 rounded-1 overflow-hidden mr-3`}>

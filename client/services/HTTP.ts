@@ -23,7 +23,7 @@ const Http = async (method, endpoint, data) => {
     return result;
   } catch (error) {
     toast.error(error.message, { toastId: 3 });
-    console.log(error);
+    console.error(error);
   }
 }
 

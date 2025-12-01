@@ -171,26 +171,3 @@ const VoterRegistration = () => {
 
 export default VoterRegistration;
 
-
-// export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-//   try {
-//     const { cookie } = ctx.req.headers
-//     const isAdmin = getCookieValue(cookie, "isAdmin");
-//     console.log({ isAdmin })
-
-//     if (isAdmin?.toString() === "false" || !isAdmin) {
-//       return {
-//         redirect: {
-//           parmanent: false,
-//           destination: "/"
-//         }
-//       }
-//     }
-
-//   } catch (error) {
-//     return { props: {} }
-//   }
-//   return { props: {} }
-// }
-
-

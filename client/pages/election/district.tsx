@@ -47,7 +47,6 @@ export default function Home() {
     }).filter(Boolean);
     const groupByCandidates = _.groupBy(populatedCandidates, (candidate) => candidate.votingBooth);
 
-    console.log({ groupByCandidates, populatedCandidates })
     //extract candidate from district
     const _totalCandidates = [];
     Object.keys(groupByCandidates).forEach((district: string) => {
@@ -117,7 +116,6 @@ export default function Home() {
       let isExit = false;
       districts?.forEach((district) => {
         const candidatesByPositions = _.groupBy(currentElection[district], (candidate: any) => candidate.position);
-        console.log({ candidatesByPositions, currentElection })
         const { mayor, deput_mayor, ward_councilor } = candidatesByPositions;
 
         const isMayorVoted = _.some(mayor, (candidate: any) => candidate?.votedVoterLists?.includes(_loggedInAccountAddress) && candidate?.user?._id !== _candidateID);
@@ -134,13 +132,12 @@ export default function Home() {
 
       if (isAlreadyVoted) return toast.error("You've already casted vote !");
 
-      console.log({ _candidateID, electionAddress, _loggedInAccountAddress,  })
       await ElectionSmartContract.methods.vote(electionAddress, _candidateID).send({ from: _loggedInAccountAddress });
 
       await fetchData();
       toast.success("Vote caste successfully.");
     } catch (error) {
-      console.log(error)
+      console.error(error)
       toast.error(`Failed to caste vote !, ${getFormattedErrorMessage(error.message)}`, { toastId: 2 });
     }
   }

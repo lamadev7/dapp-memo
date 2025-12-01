@@ -21,7 +21,7 @@ const defaultElectionData = {
   startTime: defaultDate,
   endTime: defaultDate,
   electionType: null,
-  electionImages: null,
+  bannerImage: null,
   selectedCandidateAddresses: [],
   boothPlace: "",
   position: ""
@@ -85,29 +85,27 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
     }
   };
 
-  console.log({ election })
   const onCreate = async () => {
     setLoading(true);
 
     try {
-      let { title, description, startTime, endTime, electionType, electionImages, selectedCandidateAddresses, boothPlace, position } = election;
-      console.log({ title, description, startTime, endTime, electionType, electionImages, selectedCandidateAddresses, boothPlace, position })
-      const formData = new FormData();
+      let { title, description, startTime, endTime, electionType, bannerImage, selectedCandidateAddresses, boothPlace, position } = election;
 
       if (!moment(startTime).isAfter(new Date()) || !moment(startTime).isBefore(endTime)) {
         setLoading(false);
         return toast.error("Please give correct datetime !")
       }
 
-      Array.from(electionImages).forEach((file: any) => {
-        formData.append("images", file);
-      })
+      const formData = new FormData();
 
-      await createElection({ title, description, startTime, endTime });
-      // const { url }: any = await getHostedUrl(formData);
-      // const galleryImagesUrl = url;
+      formData.append("title", title);
+      formData.append("endTime", endTime);
+      formData.append("image", bannerImage);
+      formData.append("startTime", startTime);
+      formData.append("description", description);
 
-      const galleryImagesUrl = [];
+      const response:any = await createElection(formData);
+      const bannerImageUrl = response?.bannerImage ?? '';
 
       await ElectionSmartContract.methods.createElection(
         title,
@@ -115,7 +113,7 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
         moment(startTime).unix(),
         moment(endTime).unix(),
         electionType.value === "District" ? 3 : electionType.value === "Local" ? 2 : 1,
-        galleryImagesUrl,
+        [bannerImageUrl],
         selectedCandidateAddresses,
         boothPlace,
         position
@@ -296,8 +294,7 @@ const ElectionModal = ({ show, setShowCreateElectionModal }) => {
                 className='form-control mt-2'
                 type="file"
                 name='files'
-                multiple
-                onChange={(e: any) => setElection({ ...election, electionImages: e.target.files })}
+                onChange={(e: any) => setElection({ ...election, bannerImage: e.target.files[0] })}
               />
             </div>
             <button

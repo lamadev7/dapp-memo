@@ -180,9 +180,9 @@ const electionResultTypes = [
 
 const voterItems = [
   { label: 'Voter Eligibility', value: '/voter-education/voter-eligibility', id: "voter_eligibility" },
-  { label: 'Voter Roll', value: '/voter-education/voter-roll', id: "voter_roll" },
+  { label: 'Voter Lists', value: '/voter-education/voter-roll', id: "voter_roll" },
   { label: 'Voter Registration', value: '/voter-education/voter-registration', id: "voter_registration" },
-  { label: 'FAQs on Voter Registration', value: '/voter-education/voter-faqs', id: "faqs" }]
+]
 
 const StateProvinceOffices = [
   "Sudurpaschim Province",
@@ -197,7 +197,7 @@ const StateProvinceOffices = [
 const ELECTION_TYPE = [
   // { label: "Presidential", value: "0" },
   // { label: "Parliamentary", value: "1" },
-  { label: "Local", value: "2" },
+  // { label: "Local", value: "2" },
   { label: "District", value: "3" },
   // { label: "Provincial", value: "4" },
 ]
@@ -360,39 +360,6 @@ export {
 
 
 const MUNICIPALITY = {
-  // "Bhojpur": [
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  // ],
-  // "Dhankuta": [
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  // ],
-  // "Ilam": [
-  //   { label: "", value: "" },
-  // ],
-  // "Jhapa": [
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  //   { label: "", value: "" },
-  // ],
   "Khotang": [
     { label: "Sakela Rural", value: "Sakela Rural" },
     { label: "Khotehang Rural", value: "Khotehang Rural" },
@@ -954,24 +921,6 @@ const MUNICIPALITY = {
     { label: "Isma Rural", value: "Isma Rural" },
     { label: "Malika Rural", value: "Malika Rural" },
   ],
-  // "Palpa": [
-  // ],
-  // "Dang": [
-  // ],
-  // "Pyuthan": [
-  // ],
-  // "Rolpa": [
-  // ],
-  // "Rukum": [
-  // ],
-  // "Banke": [
-  // ],
-  // "Bardiya": [
-  // ],
-
-
-  // "Eastern": [
-  // ]
 }
 
 

@@ -26,7 +26,6 @@ const ElectionCard = ({ details, src, electionStatus }) => {
     try {
       const candidates = await getCandidateList();
       const filteredCandidates = candidates.filter((candidate) => details?.candidateAddresses?.includes(candidate.user.id));
-      console.log({ filteredCandidates });
       setCandidateLists(filteredCandidates);
     } catch (error) {
       console.error(error);
@@ -48,7 +47,6 @@ const ElectionCard = ({ details, src, electionStatus }) => {
   const mouseOut = () => {
     setShowIcon(false)
   }
-
   return (
     <div className={`relative bg-slate-50 sm:w-[340px] xsm:w-full h-fit rounded-t-[5px] overflow-hidden shadow-md mr-2 mb-3 ${electionStatus === "LIVE" && "animatedBorder"}`}>
       <div className='w-full h-[180px] overflow-hidden' onMouseOver={mouseOver} onMouseOut={mouseOut}>
@@ -70,7 +68,7 @@ const ElectionCard = ({ details, src, electionStatus }) => {
             <span className='text-light ml-3'>Live</span>
           </span>
         }
-        <img className={`h-100 w-100 object-cover transition ${showIcon && "scale-125"} ${electionStatus === "LIVE" && "animatedBorder"}`} src={src} />
+        <img crossOrigin='' className={`h-100 w-100 object-cover transition ${showIcon && "scale-125"} ${electionStatus === "LIVE" && "animatedBorder"}`} src={src} />
       </div>
       <div className={`flex flex-column pt-2 pb-4 px-3 ${electionStatus === "LIVE" && "animatedBorder"}`}>
         <span className='text-[18px] mb-1 font-bold text-black select-none'>{title}</span>
@@ -85,31 +83,31 @@ const ElectionCard = ({ details, src, electionStatus }) => {
           <div className='py-3 px-1'>
             <div className='flex'>
               <h4>{selectedElections?.title}</h4>
-              <span className='text-sm text-light bg-red-600 px-[10px] h-fit rounded-5 -mt-[10px]'>{selectedElections?.electionType}</span>
+              <span className='text-sm text-light bg-red-600 px-[10px] h-fit rounded-5 -mt-[10px]'>{selectedElections?.electionType == 1 ? "District" : ""}</span>
             </div>
             <p>{selectedElections?.description}</p>
           </div>
           <Fade
-            autoplay={true}
-            nextArrow={<BsChevronRight className='absolute text-slate-100 text-4xl' />}
-            prevArrow={<BsChevronLeft className='absolute text-slate-100 text-4xl' />}>
-            {
-              selectedElections?.galleryImagesUrl?.map((src: string, i: number) => <img
-                className='lg:h-[400px] h-[300px] w-100 object-cover transition ease-in-out delay-[500px] hover:scale-125 hover:opacity-100'
-                src={src} key={i} />)
-            }
+            autoplay={false}
+            arrows={false}
+          >
+            <img
+              crossOrigin='anonymous'
+              src={selectedElections?.galleryUrls?.[0] ?? ''}
+              className='lg:h-[400px] h-[300px] w-100 object-cover transition ease-in-out delay-[500px] hover:scale-125 hover:opacity-100'
+            />
           </Fade>
           <h5 className='mt-5 font-bold'>Candidates</h5>
           <div className='flex flex-wrap pb-3'>
             {candidateLists && candidateLists.length > 0 && candidateLists?.map((data: any) => {
               const candidateA = candidateLists[0];
               const candidateB = candidateLists[1];
-              const candidateAVotes = candidateA?.votedVoterLists?.length;
-              const candidateBVotes = candidateB?.votedVoterLists?.length;
+              const candidateAVotes = candidateA?.totalVotesReceived ?? 0;
+              const candidateBVotes = candidateB?.totalVotesReceived ?? 0;
 
 
               const winnerAddress = candidateAVotes === candidateBVotes ? null : candidateAVotes > candidateBVotes
-                ? candidateA?.user?._id : candidateB?.user?._id;
+                ? candidateA?.user?.id : candidateB?.user?.id;
 
               return (
                 <div>
